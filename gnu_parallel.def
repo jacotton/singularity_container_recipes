@@ -1,0 +1,38 @@
+Bootstrap: docker
+From: centos:7
+%environment
+	INC=$INC:/usr/share/perl5
+%post
+# Install GNU parallel in a CentOS-based docker container (e.g. for CI/CD)
+# install needed dependencies
+yum install -q -y bzip2 tar  make locales perl perl-devel perl-Test-Simple perl-CPAN libthread-queue-any-perl
+yum reinstall glibc-common -y
+localedef -c -i en_GB -f UTF-8 en_GB.UTF-8
+echo "LANG=en_GB.UTF-8" > /etc/locale.conf
+#localectl
+# download source
+#cpan App::cpanminus
+#cpan Thread::Queue
+curl -s -L -o Thread-Queue-3.13.tar.gz https://cpan.metacpan.org/authors/id/J/JD/JDHEDDEN/Thread-Queue-3.13.tar.gz
+tar -zxvf Thread-Queue-3.13.tar.gz
+cd Thread-Queue-3.13
+perl Makefile.PL
+make
+make test
+make install
+cd ..
+curl -s -L -o /tmp/parallel.tar.bz2 https://ftpmirror.gnu.org/parallel/parallel-latest.tar.bz2
+# extract source
+tar -C /tmp -xjf /tmp/parallel.tar.bz2
+# navigate into extracted source
+cd /tmp/parallel-*
+# build and install
+./configure && make && make install
+# return to previous directory
+cd -
+
+%runscript
+    echo "Hello World! Hello from our custom Singularity image!"
+
+
+

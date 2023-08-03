@@ -1,0 +1,20 @@
+Bootstrap: docker
+From: debian:sid
+
+%runscript
+    echo "This is what happens when you run the container..."
+
+%post
+    export DEBIAN_FRONTEND=noninteractive
+    echo "Hello from inside the container"
+    apt-get update
+	apt-get -y --allow-unauthenticated install vim
+	apt-get -y install golang git
+	git clone https://github.com/shenwei356/rush
+	cd rush
+
+#go build
+
+# or statically-linked binary
+	CGO_ENABLED=0 go build -tags netgo -ldflags '-w -s'	
+	cp rush /usr/local/bin

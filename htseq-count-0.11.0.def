@@ -1,0 +1,26 @@
+BootStrap: docker
+From: ubuntu:18.04
+
+%labels
+Maintainer klein
+base.image="ubuntu:18.04"
+version="1"
+software="htseq-count"
+software.version="0.11.0"
+
+%post
+export DEBIAN_FRONTEND=noninteractive
+apt-get update
+apt-get install -y python3 python3-pip git
+apt-get install -y libtiff5-dev libjpeg8-dev libopenjp2-7-dev zlib1g-dev \
+    libfreetype6-dev liblcms2-dev libwebp-dev tcl8.6-dev tk8.6-dev python3-tk \
+    libharfbuzz-dev libfribidi-dev libxcb1-dev
+#this line added by James Cotton 6/7/2023
+apt-get install -y zlib1g-dev libbz2-dev liblzma-dev
+apt-get clean && apt-get purge
+pip3 install matplotlib
+pip3 install HTSeq==0.11.0
+
+
+%runscript
+exec htseq-count "$@"

@@ -1,0 +1,10 @@
+BootStrap: docker
+From: ubuntu:16.04
+
+
+%post
+  apt-get update && apt-get install -y \
+  apt-utils \
+  strace \
+  graphviz \
+  && rm -rf /var/lib/apt/lists/*

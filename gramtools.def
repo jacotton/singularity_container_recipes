@@ -1,0 +1,61 @@
+# Usage: `sudo singularity build image_name.img Gramtools.def`
+# Tested on: singularity v3.4.0-1
+
+BootStrap: docker
+From: ubuntu:20.04  
+
+%post
+    export DEBIAN_FRONTEND=noninteractive
+
+	apt-get update
+	apt-get install -y \
+	build-essential \
+	cmake \
+	automake \
+	g++-8 \
+	git \
+	bedtools \
+	liblzma-dev \
+	libbz2-dev \
+	libhts-dev \
+	pkg-config \
+	python3 \
+	python3-pip \
+	wget \
+	zlib1g-dev \
+	bcftools \
+	tabix
+
+    ln -sf /usr/bin/g++-8 /usr/bin/g++ # Default to g++-8
+	pip install pip==20.0.2 # upgrade pip
+
+	apt-get install -y \
+	python \
+	python-dev \
+	r-base
+	pip3 install conan
+	#### latest master rather than pypi####
+	pip3 install git+https://github.com/iqbal-lab-org/cluster_vcf_records/ 
+	#export TMPDIR=/gramtools_pip_tmp
+	VERSION="1.10.0"
+	wget -O - "https://github.com/iqbal-lab-org/gramtools/releases/download/v${VERSION}/gramtools-${VERSION}.tar.gz" | tar xfz -
+	pip3 install ./gramtools-"${VERSION}"
+#	pip3 install -vvv wheel git+https://github.com/iqbal-lab-org/gramtools --log /gramtools_pip.log --no-clean
+
+		
+
+%environment
+    export LC_ALL=C
+
+%labels
+    Author Brice Letcher
+    Edited by James Cotton to add bedtools dependency for some requirements
+
+# Notes
+# * remove all trailing whitespace in apt-get lines
+# * Dependencies:
+#       * bcftools: for multi-sample pipeline (merge vcfs + bgzf index vcfs)
+#       * tabix: for multi-sample pipeline (bgzf index vcfs)
+#       * cortex: used in variant discovery. depends on:
+#               * stampy: requires python2, python-dev
+#               * r-base
